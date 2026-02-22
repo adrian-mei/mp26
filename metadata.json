@@ -1,0 +1,5 @@
+{
+  "name": "Muse - Local Music Player",
+  "description": "A mobile-first, offline-capable local music player PWA.",
+  "requestFramePermissions": []
+}
