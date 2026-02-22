@@ -117,7 +117,7 @@ export const Library = () => {
               <input 
                 type="file" 
                 multiple 
-                accept="audio/*" 
+                accept="audio/*,.mp3,.wav,.m4a,.flac,.aac,.ogg" 
                 className="hidden" 
                 id="file-upload"
                 onChange={handleFileUpload}
