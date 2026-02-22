@@ -21,7 +21,41 @@ export const Library = () => {
 
   const loadSongs = async () => {
     setIsLoading(true);
-    const loadedSongs = await getSongs();
+    let loadedSongs = await getSongs();
+
+    // Auto-load default song if library is empty
+    if (loadedSongs.length === 0) {
+      try {
+        const response = await fetch('/gene-autry-santa-claus.mp3');
+        if (response.ok) {
+          const blob = await response.blob();
+          const file = new File([blob], "Gene Autry - Here Comes Santa Claus.mp3", { type: "audio/mpeg" });
+          
+          await new Promise<void>((resolve) => {
+            const w = new Worker(new URL('../workers/metadata.worker.ts', import.meta.url), { type: 'module' });
+            w.onmessage = async (ev) => {
+              if (ev.data.type === 'SUCCESS') {
+                const songData = ev.data.payload;
+                songData.file = file; 
+                await saveSong(songData);
+              }
+              w.terminate();
+              resolve();
+            };
+            w.onerror = () => {
+              w.terminate();
+              resolve();
+            };
+            w.postMessage({ file });
+          });
+          
+          loadedSongs = await getSongs();
+        }
+      } catch (err) {
+        console.error("Failed to load default song", err);
+      }
+    }
+
     setSongs(loadedSongs);
     setQueue(loadedSongs); // Update queue with all songs initially
     setIsLoading(false);
